@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KCNA Exam Prep – JSON Upload Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root{ --bg:#0b0f14; --panel:#121821; --soft:#1a2230; --accent:#5b9cff; --text:#e7eefc; --muted:#9bb1d1; --good:#22c55e; --bad:#ef4444; --warn:#f59e0b; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--text);background:linear-gradient(180deg,#0b0f14,#0b0f14 60%,#0e1420)}
+    header{position:sticky;top:0;z-index:10;background:rgba(11,15,20,.7);backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid #1f2937}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    h1{font-size:20px;margin:0;display:flex;gap:12px;align-items:center}
+    h1 .pill{font-size:12px;padding:4px 8px;border-radius:999px;background:var(--soft);color:var(--muted)}
+    main{max-width:1200px;margin:18px auto;display:grid;grid-template-columns:320px 1fr;gap:18px;padding:0 16px}
+    .card{background:var(--panel);border:1px solid #1f2937;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .card .head{padding:14px 16px;border-bottom:1px solid #1f2937;display:flex;justify-content:space-between;align-items:center}
+    .card .body{padding:16px}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .btn{--b:#303846;--t:var(--text);display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--b);background:linear-gradient(180deg,#1b2432,#141b26);border-radius:12px;color:var(--t);cursor:pointer;font-weight:600}
+    .btn:hover{filter:brightness(1.07)}
+    .btn.primary{--b:#2357b3;background:linear-gradient(180deg,#3173e0,#2357b3)}
+    .btn.ghost{background:transparent}
+    .grid{display:grid;gap:10px}
+    .grid.cols-2{grid-template-columns:1fr 1fr}
+    label{font-size:12px;color:var(--muted)}
+    input,select{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #263043;background:#0f141b;color:var(--text)}
+    .progress{height:10px;background:#111827;border-radius:16px;overflow:hidden}
+    .progress > span{display:block;height:100%;background:linear-gradient(90deg,#2e7bff,#6ae4ff)}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#111827;border:1px solid #1f2937;color:var(--muted);font-size:12px}
+    .q{font-size:18px;line-height:1.4;margin-bottom:12px}
+    .opt{display:flex;gap:12px;align-items:center;justify-content:flex-start;width:100%;padding:10px 12px;border:1px solid #243145;background:#0e1520;border-radius:12px;cursor:pointer}
+    .opt.correct{border-color:#1a7a3f;box-shadow:inset 0 0 0 1px #1a7a3f}
+    .opt.incorrect{border-color:#7a1a1a;box-shadow:inset 0 0 0 1px #7a1a1a}
+    .opt input[type="radio"]{width:auto;min-width:auto;padding:0;margin:0 6px 0 0;border:0;background:transparent;appearance:auto;-webkit-appearance:auto;accent-color:var(--accent)}
+    .opt span{flex:1 1 auto;color:var(--text);text-align:left;word-break:break-word}
+    .muted{color:var(--muted)}
+    /* Explanation box styling */
+    #explanation{margin-top:12px;padding:10px 12px;border:1px solid #1f2937;background:#0c1220;border-left:4px solid var(--accent);border-radius:10px;color:var(--muted);display:block;opacity:.95}
+    #explanation.good{border-left-color:var(--good);background:linear-gradient(180deg,#0e1a14,#0b1310)}
+    #explanation.bad{border-left-color:var(--bad);background:linear-gradient(180deg,#1a0f10,#130b0c)}
+    #explanation:empty{display:none}
+    .kpi{display:flex;gap:12px;flex-wrap:wrap}
+    .kpi .tile{flex:1 1 110px;background:#0e1420;border:1px solid #1f2937;border-radius:12px;padding:10px 12px}
+    .tile h4{margin:0 0 6px 0;font-size:12px;color:var(--muted)}
+    .tile .num{font-weight:700;font-size:20px}
+    .hr{height:1px;background:#1f2937;margin:14px 0}
+    .pill-sm{padding:2px 8px;border-radius:999px;border:1px solid #1f2937;background:#0c1220;color:var(--muted);font-size:11px}
+    .small{font-size:12px}
+    .sticky-footer{position:sticky;bottom:0;background:rgba(18,24,33,.9);backdrop-filter:blur(6px);border-top:1px solid #1f2937;padding:12px 16px;border-radius:0 0 16px 16px}
+    .toast{position:fixed;right:16px;bottom:16px;background:#0e1420;border:1px solid #1f2937;padding:12px 14px;border-radius:12px;opacity:0;transform:translateY(10px);transition:.2s}
+    .toast.show{opacity:1;transform:translateY(0)}
+    .hidden{display:none !important}
+    /* Inline alignment for checkbox control */
+    .inline-control{display:flex;align-items:center;justify-content:flex-start;height:100%;}
+    .inline-label{display:flex;align-items:center;gap:8px}
+    .inline-label input[type="checkbox"]{width:auto}
+    /* Align #Questions and Start button neatly */
+    .grid.cols-2 > div{display:flex;flex-direction:column;gap:8px}
+    #startBtn{margin-top:auto}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap row" style="justify-content:space-between">
+      <h1>KCNA Exam Prep <span class="pill">Upload kcna_prep_qna_clean.json</span></h1>
+      <div class="row">
+        <span class="badge" id="datasetBadge">0 questions</span>
+        <button class="btn" id="resetBtn">♻️ Reset</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT: Controls & Import -->
+    <section class="card">
+      <div class="head"><strong>Setup & Import (JSON only)</strong></div>
+      <div class="body grid" style="gap:14px">
+        <div class="grid cols-2">
+          <div>
+            <label>Mode</label>
+            <select id="mode"><option value="practice">Practice (instant feedback)</option><option value="exam">Exam (feedback at the end)</option></select>
+          </div>
+          <div>
+            <label>Order</label>
+            <select id="order"><option value="random">Randomize</option><option value="sequential">As listed</option></select>
+          </div>
+        </div>
+        <div class="grid cols-2">
+          <div>
+            <label>Domain</label>
+            <select id="domainFilter">
+              <option value="ALL">All domains</option>
+              <option value="Kubernetes Fundamentals">Kubernetes Fundamentals</option>
+              <option value="Container Orchestration">Container Orchestration</option>
+              <option value="Cloud Native Architecture">Cloud Native Architecture</option>
+              <option value="Cloud Native Observability">Cloud Native Observability</option>
+              <option value="Cloud Native Application Delivery">Cloud Native Application Delivery</option>
+            </select>
+          </div>
+          <div class="inline-control"><label class="inline-label"><input type="checkbox" id="useWeights" /> <span>Use KCNA domain weights</span></label></div>
+        </div>
+        <div class="grid cols-2">
+          <div>
+            <label># Questions</label>
+            <input id="numQ" type="number" min="5" step="5" value="60" />
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button class="btn" id="startBtn">▶ Start</button>
+          </div>
+        </div>
+
+        <div class="hr"></div>
+        <div class="grid">
+          <strong>Import kcna_prep_qna_clean.json</strong>
+          <div class="grid cols-2">
+            <button class="btn" id="uploadBtn">📥 Upload JSON</button>
+            <input id="fileInput" type="file" accept=".json" multiple style="display:none">
+            <button class="btn ghost" id="canonBtn">📚 Upload reference JSON (optional)</button>
+            <input id="canonInput" type="file" accept=".json" multiple style="display:none">
+          </div>
+          <div id="dropZone" class="small muted" style="padding:10px;border:1px dashed #334155;border-radius:8px;background:#0c1220">Drag & drop JSON here</div>
+          <div id="uploadProgressWrap" class="grid hidden" style="gap:6px">
+            <label>Upload progress</label>
+            <div class="progress"><span id="uploadProgressBar" style="width:0%"></span></div>
+            <span class="small muted" id="uploadStatus"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Quiz Panel -->
+    <section class="card" id="quizCard">
+      <div class="head"><strong id="quizTitle">No quiz yet</strong><span class="badge" id="metaBadge">—</span></div>
+      <div class="body">
+        <div id="questionPanel" class="hidden">
+          <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span class="pill-sm" id="domainBadge">Domain</span>
+            <div class="row"><span class="pill-sm" id="qIndex">0/0</span></div>
+          </div>
+          <div class="q" id="qText"></div>
+          <div class="grid" id="options"></div>
+          <div id="explanation" class="muted small" style="margin-top:10px"></div>
+          <div class="sticky-footer row" style="justify-content:space-between">
+            <div class="row" style="gap:8px">
+              <button class="btn ghost" id="prevBtn">⟵ Prev</button>
+              <button class="btn ghost" id="nextBtn">Next ⟶</button>
+            </div>
+            <div class="row" style="gap:8px">
+              <button class="btn" id="checkBtn">Check</button>
+              <button class="btn primary" id="submitBtn">Review results</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="resultPanel" class="hidden">
+          <h2 style="margin:0 0 8px 0">Results</h2>
+          <div class="kpi">
+            <div class="tile"><h4>Score</h4><div class="num" id="scoreOverall">0%</div></div>
+            <div class="tile"><h4>Correct</h4><div class="num" id="scoreCorrect">0</div></div>
+            <div class="tile"><h4>Incorrect</h4><div class="num" id="scoreIncorrect">0</div></div>
+            <div class="tile"><h4>Time</h4><div class="num" id="elapsed">00:00</div></div>
+          </div>
+          <div class="hr"></div>
+          <div id="resultList" class="small"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+  <!-- Upload summary modal -->
+  <div id="uploadModal" class="hidden" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.45)">
+    <div style="width:560px;max-width:92vw;background:#121821;border:1px solid #1f2937;border-radius:12px;padding:14px 16px">
+      <div class="row" style="justify-content:space-between"><strong>Upload Summary</strong><button class="btn ghost" id="closeUploadModal">✕</button></div>
+      <div class="hr"></div>
+      <div class="small" id="uploadSummaryText"></div>
+      <div id="uploadSummaryList" class="small" style="margin-top:8px"></div>
+      <div id="uploadSummaryErrors" class="small" style="margin-top:8px;color:#fca5a5"></div>
+    </div>
+  </div>
+
+<script>
+// ====== Utilities ======
+function toast(msg){ const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1600); }
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
+function secondsToClock(s){const m=Math.floor(s/60).toString().padStart(2,'0');const r=(s%60).toString().padStart(2,'0');return `${m}:${r}`}
+
+// ====== Elements ======
+const els = {
+  datasetBadge: document.getElementById('datasetBadge'),
+  mode: document.getElementById('mode'),
+  order: document.getElementById('order'),
+  numQ: document.getElementById('numQ'),
+  domainFilter: document.getElementById('domainFilter'),
+  useWeights: document.getElementById('useWeights'),
+  uploadBtn: document.getElementById('uploadBtn'),
+  fileInput: document.getElementById('fileInput'),
+  canonBtn: document.getElementById('canonBtn'),
+  canonInput: document.getElementById('canonInput'),
+  dropZone: document.getElementById('dropZone'),
+  uploadProgressWrap: document.getElementById('uploadProgressWrap'),
+  uploadProgressBar: document.getElementById('uploadProgressBar'),
+  uploadStatus: document.getElementById('uploadStatus'),
+  resetBtn: document.getElementById('resetBtn'),
+  // modal
+  uploadModal: document.getElementById('uploadModal'),
+  closeUploadModal: document.getElementById('closeUploadModal'),
+  uploadSummaryText: document.getElementById('uploadSummaryText'),
+  uploadSummaryList: document.getElementById('uploadSummaryList'),
+  uploadSummaryErrors: document.getElementById('uploadSummaryErrors'),
+
+  quizTitle: document.getElementById('quizTitle'),
+  metaBadge: document.getElementById('metaBadge'),
+  questionPanel: document.getElementById('questionPanel'),
+  resultPanel: document.getElementById('resultPanel'),
+  qIndex: document.getElementById('qIndex'),
+  domainBadge: document.getElementById('domainBadge'),
+  qText: document.getElementById('qText'),
+  options: document.getElementById('options'),
+  checkBtn: document.getElementById('checkBtn'),
+  submitBtn: document.getElementById('submitBtn'),
+  prevBtn: document.getElementById('prevBtn'),
+  nextBtn: document.getElementById('nextBtn'),
+  explanation: document.getElementById('explanation'),
+  scoreOverall: document.getElementById('scoreOverall'),
+  scoreCorrect: document.getElementById('scoreCorrect'),
+  scoreIncorrect: document.getElementById('scoreIncorrect'),
+  elapsed: document.getElementById('elapsed'),
+  resultList: document.getElementById('resultList'),
+};
+
+// ====== Progress helpers ======
+function setUploadProgress(done,total,text){
+  if(els.uploadProgressWrap) els.uploadProgressWrap.classList.remove('hidden');
+  const pct = total>0? Math.round((done*100)/total):0;
+  els.uploadProgressBar.style.width = pct+'%';
+  els.uploadStatus.textContent = text || `${done}/${total}`;
+}
+function resetUploadProgress(){
+  // hide progress UI when not actively uploading
+  if(els.uploadProgressWrap) els.uploadProgressWrap.classList.add('hidden');
+  els.uploadProgressBar.style.width = '0%';
+  els.uploadStatus.textContent = '';
+}
+
+function showUploadSummary({files, imported, skipped, errors, summaries}){
+  if(!els.uploadModal) return;
+  els.uploadSummaryText.textContent = `${files} file(s) processed • ${imported} item(s) imported${skipped?`, ${skipped} file(s) yielded 0 items`:''}`;
+  els.uploadSummaryList.innerHTML = (summaries||[]).map(s=>`<div>• ${s.name}: ${s.imported} imported${s.note?` — ${s.note}`:''}</div>`).join('');
+  els.uploadSummaryErrors.innerHTML = (errors&&errors.length) ? ('Errors:' + errors.map(e=>`<div>• ${e}</div>`).join('')) : '';
+  els.uploadModal.classList.remove('hidden');
+}
+if(els.closeUploadModal){ els.closeUploadModal.addEventListener('click', ()=> els.uploadModal.classList.add('hidden')); }
+
+// ====== Canonical source matcher (optional) ======
+let CANON_MAP = null; // key: normalized question -> {options:[...], answerIndex:int}
+async function buildCanon(){
+  if(CANON_MAP) return CANON_MAP;
+  const build = async (name)=>{
+    try{ const res = await fetch(name); if(!res.ok) return []; return await res.json(); }catch(_){ return []; }
+  };
+  // On file:// protocol, skip network fetch to avoid CORS errors
+  let merge=[];
+  if(location.protocol!=='file:'){
+    const a = await build('kcna-all.json');
+    const b = await build('kcna-60.json');
+    merge = [...(Array.isArray(a)?a:[]), ...(Array.isArray(b)?b:[])];
+  } else {
+    merge = [];
+  }
+  const map = new Map();
+  merge.forEach(q=>{
+    const qt=(q.question||q.Question||'').toString().trim(); if(!qt) return;
+    const key = qt.replace(/\s+/g,' ').toLowerCase();
+    let options = Array.isArray(q.options)? q.options : [q['Option A'],q['Option B'],q['Option C'],q['Option D'],q['Option E']].filter(Boolean);
+    let ai = (typeof q.answerIndex==='number')? q.answerIndex : letterToIndex(q.correct||q.Correct||q.Answer||q.answer);
+    if(options && options.length>=2 && Number.isInteger(ai)) map.set(key,{options,answerIndex:ai});
+  });
+  CANON_MAP = map; return map;
+}
+
+function addToCanon(arr){
+  if(!arr) return 0;
+  if(!CANON_MAP) CANON_MAP=new Map();
+  const list = Array.isArray(arr)? arr : (Array.isArray(arr.questions)? arr.questions : (Array.isArray(arr.items)? arr.items : []));
+  let added=0;
+  list.forEach(q=>{
+    const qt=(q.question||q.Question||'').toString().trim(); if(!qt) return;
+    const key = qt.replace(/\s+/g,' ').toLowerCase();
+    let options = Array.isArray(q.options)? q.options : [q['Option A'],q['Option B'],q['Option C'],q['Option D'],q['Option E']].filter(Boolean);
+    let ai = (typeof q.answerIndex==='number')? q.answerIndex : letterToIndex(q.correct||q.Correct||q.Answer||q.answer);
+    if(options && options.length>=2 && Number.isInteger(ai)) { CANON_MAP.set(key,{options,answerIndex:ai}); added++; }
+  });
+  return added;
+}
+
+function letterToIndex(ch){ if(ch==null) return null; const m={A:0,B:1,C:2,D:3,E:4}; const s=String(ch).trim().toUpperCase(); return m[s] ?? null; }
+function indexToLetter(i){ const arr=['A','B','C','D','E']; return arr[i]||'A'; }
+
+// Normalize domain labels to canonical KCNA domains
+function normalizeDomain(raw){
+  const s = String(raw||'').trim().toLowerCase().replace(/\d+$/,'');
+  if(s.startsWith('kubernetes fundamentals')) return 'Kubernetes Fundamentals';
+  if(s.startsWith('container orchestration')) return 'Container Orchestration';
+  if(s.startsWith('cloud native observability')) return 'Cloud Native Observability';
+  if(s.startsWith('cloud native application delive')) return 'Cloud Native Application Delivery';
+  if(s.startsWith('cloud native application delivery')) return 'Cloud Native Application Delivery';
+  if(s.startsWith('cloud native architecture')) return 'Cloud Native Architecture';
+  return (raw||'General').toString().trim() || 'General';
+}
+
+// ====== Dataset ======
+let DATASET = [];
+function persistDataset(){ try{ localStorage.setItem('kcna_prep_dataset', JSON.stringify(DATASET)); }catch(_){}}
+
+async function normalizePrepJSON(obj){
+  // Accept either: list of Qs, or { sections: [ {title, questions:[...]}, ... ] }
+  let rows=[];
+  if(Array.isArray(obj)) rows=obj; else if(obj && Array.isArray(obj.sections)) rows=obj.sections.flatMap(s=> s.questions||[]);
+  const canon = await buildCanon();
+  const out=[]; const seen=new Set();
+  for(const r of rows){
+    let question = (r.question||r.Question||'').toString().trim(); if(!question) continue;
+    // Strip artifacts occasionally embedded into question text
+    question = question
+      .replace(/Return to Question.*$/i,'')
+      .replace(/Correct Answer:\s*[A-E].*$/i,'')
+      .replace(/\bExplanation:.*$/i,'')
+      .trim();
+    const key = question.replace(/\s+/g,' ').toLowerCase(); if(seen.has(key)) continue; seen.add(key);
+    const domain = normalizeDomain(r.domain||r.Domain||'');
+    let options = [];
+    let missingOptions = false;
+    // options may be object {A:..,B:..} or array
+    if(Array.isArray(r.options)) options = r.options.filter(Boolean);
+    else if(r.options && typeof r.options==='object'){
+      const A=r.options.A||r.options.a||r.options['Option A'];
+      const B=r.options.B||r.options.b||r.options['Option B'];
+      const C=r.options.C||r.options.c||r.options['Option C'];
+      const D=r.options.D||r.options.d||r.options['Option D'];
+      const E=r.options.E||r.options.e||r.options['Option E'];
+      options=[A,B,C,D,E].filter(v=>String(v||'').trim()!=='');
+    }
+    let answerIndex = (typeof r.answerIndex==='number')? r.answerIndex : letterToIndex(r.answer||r.Answer||r.correct||r.Correct);
+    // fill from canon if options missing
+    if((!options || options.length<2) && canon && canon.size){
+      const m = canon.get(key);
+      if(m){ options=m.options; if(!Number.isInteger(answerIndex)) answerIndex=m.answerIndex; }
+    }
+    // final fallback: generate letter-only choices (A..D/E) and mark as missingOptions
+    if((!options || options.length<2) && Number.isInteger(answerIndex)){
+      const letters = ['A','B','C','D','E'];
+      const needed = Math.max(4, (answerIndex+1));
+      options = letters.slice(0, needed);
+      missingOptions = true;
+    }
+    const explanation = (r.explanation||r.Explanation||'').toString().trim();
+    if(options && options.length>=2 && Number.isInteger(answerIndex))
+      out.push({id:out.length+1, domain, question, options, answerIndex, explanation, missingOptions});
+  }
+  return out;
+}
+
+function setDataset(list){ DATASET = list||[]; els.datasetBadge.textContent = `${DATASET.length} questions`; persistDataset(); }
+try{ const raw=localStorage.getItem('kcna_prep_dataset'); if(raw){ setDataset(JSON.parse(raw)); } }catch(_){ }
+
+// ====== Quiz Runtime ======
+let QUIZ = { list:[], index:0, answers:{}, startTS:null, endTS:null, mode:'practice' };
+let __timerInt=null; let __elapsed=0;
+function startTimer(){ clearInterval(__timerInt); __elapsed=0; __timerInt=setInterval(()=>{ __elapsed++; document.getElementById('elapsed').textContent=secondsToClock(__elapsed); },1000); }
+function stopTimer(){ clearInterval(__timerInt); __timerInt=null; }
+
+function buildQuiz(){
+  const n = clamp(parseInt(els.numQ.value||'0',10), 1, 500);
+  const mode = els.mode.value; QUIZ.mode = mode;
+  // Filter by domain if requested
+  const dom = els.domainFilter.value;
+  let pool = (dom && dom!=='ALL') ? DATASET.filter(q=>q.domain===dom) : DATASET;
+  if(pool.length===0){ toast('No questions in selected domain'); return; }
+  const weighted = !!els.useWeights.checked;
+  const WEIGHTS = {
+    'Kubernetes Fundamentals': 46,
+    'Container Orchestration': 22,
+    'Cloud Native Architecture': 16,
+    'Cloud Native Observability': 8,
+    'Cloud Native Application Delivery': 8
+  };
+  if(els.order.value==='random') pool = shuffle(pool);
+  let picked = [];
+  if(weighted && (!dom || dom==='ALL')){
+    const domains = Object.keys(WEIGHTS);
+    const byDom = new Map(domains.map(d=>[d, pool.filter(q=>q.domain===d)]));
+    // initial allocation by weight
+    const allocation = {};
+    domains.forEach(d=>{ allocation[d] = Math.floor(n * (WEIGHTS[d]/100)); });
+    // ensure at least 1 when possible
+    if(n >= domains.length){ domains.forEach(d=>{ if(allocation[d]===0 && (byDom.get(d)||[]).length>0){ allocation[d]=1; } }); }
+    // adjust up to n based on availability and weight priority
+    let sum = domains.reduce((a,d)=>a+allocation[d],0);
+    while(sum < n){
+      const next = domains
+        .filter(d=> (byDom.get(d)||[]).length > allocation[d])
+        .sort((a,b)=> WEIGHTS[b]-WEIGHTS[a])[0];
+      if(!next) break; allocation[next]++; sum++;
+    }
+    while(sum > n){
+      const next = domains.sort((a,b)=> WEIGHTS[a]-WEIGHTS[b]).find(d=>allocation[d]>0);
+      if(!next) break; allocation[next]--; sum--;
+    }
+    domains.forEach(d=>{
+      const arr = byDom.get(d)||[]; if(arr.length===0) return;
+      const k = Math.min(allocation[d]||0, arr.length);
+      picked.push(...arr.slice(0,k));
+    });
+  } else {
+    picked = pool.slice(0,n);
+  }
+  const list = picked.map(q=>{
+    if(q.missingOptions){
+      // keep A..D/E order and index as-is when we don't have real texts
+      return {...q};
+    }
+    // shuffle options but keep correct mapping
+    const map = q.options.map((opt,idx)=>({opt,idx}));
+    const shuffled = shuffle(map);
+    const options = shuffled.map(x=>x.opt);
+    const answerIndex = shuffled.findIndex(x=>x.idx===q.answerIndex);
+    return {...q, options, answerIndex};
+  });
+  QUIZ = { list, index:0, answers:{}, startTS:Date.now(), endTS:null, mode };
+  renderQuestion();
+  renderMeta();
+  els.questionPanel.classList.remove('hidden');
+  els.resultPanel.classList.add('hidden');
+  startTimer();
+}
+
+function renderMeta(){
+  els.quizTitle.textContent = QUIZ.mode==='practice' ? 'Practice Session' : 'Exam Session';
+  els.metaBadge.textContent = `${QUIZ.list.length} questions`;
+  // Hide redundant Check button and ensure submit shows "Review results"
+  if(els.checkBtn) els.checkBtn.style.display = 'none';
+  if(els.submitBtn) els.submitBtn.textContent = 'Review results';
+}
+
+function renderQuestion(){
+  const i = clamp(QUIZ.index, 0, QUIZ.list.length-1);
+  const q = QUIZ.list[i];
+  els.qIndex.textContent = `${i+1}/${QUIZ.list.length}`;
+  els.domainBadge.textContent = q.domain;
+  els.qText.textContent = q.question;
+  els.options.innerHTML = '';
+  q.options.forEach((opt,idx)=>{
+    const wrap = document.createElement('label');
+    wrap.className = 'opt';
+    const inp = document.createElement('input'); inp.type='radio'; inp.name=`q-${i}`; inp.value=idx; inp.checked = QUIZ.answers[i]===idx;
+    inp.addEventListener('change',()=>{ QUIZ.answers[i]=idx; if(QUIZ.mode==='practice'){ checkCurrent(); }});
+    const span = document.createElement('span'); span.textContent = opt;
+    wrap.appendChild(inp); wrap.appendChild(span); els.options.appendChild(wrap);
+  });
+  // Clicking the question text shows feedback (practice mode)
+  els.qText.onclick = ()=>{ if(QUIZ.mode==='practice') checkCurrent(); };
+  els.explanation.textContent = '';
+  els.explanation.classList.remove('good','bad');
+}
+
+function checkCurrent(){
+  const i = QUIZ.index; const q = QUIZ.list[i]; const a = QUIZ.answers[i];
+  if(a==null){ toast('Pick an option first.'); return; }
+  const nodes = [...els.options.querySelectorAll('.opt')];
+  nodes.forEach((node,idx)=>{
+    node.classList.remove('correct','incorrect');
+    if(idx===q.answerIndex) node.classList.add('correct');
+    if(idx===a && a!==q.answerIndex) node.classList.add('incorrect');
+  });
+  els.explanation.textContent = 'Explanation: ' + (q.explanation||'');
+  els.explanation.classList.remove('good','bad');
+  if(a===q.answerIndex) els.explanation.classList.add('good'); else els.explanation.classList.add('bad');
+}
+
+function submitExam(){
+  stopTimer();
+  QUIZ.endTS = Date.now();
+  const total = QUIZ.list.length; let correct=0;
+  QUIZ.list.forEach((q,i)=>{ if(QUIZ.answers[i]===q.answerIndex) correct++; });
+  const scorePct = Math.round((correct*100)/total);
+  els.scoreOverall.textContent = scorePct+"%";
+  els.scoreCorrect.textContent = correct;
+  els.scoreIncorrect.textContent = (total-correct);
+  const elapsedSec = Math.round(((QUIZ.endTS||Date.now()) - QUIZ.startTS)/1000);
+  els.elapsed.textContent = secondsToClock(elapsedSec);
+  // Build review list
+  const rows = QUIZ.list.map((q,i)=>{
+    const sel = QUIZ.answers[i];
+    const ok = sel===q.answerIndex;
+    const toLetter = (x)=> ['A','B','C','D','E'][x]||'?';
+    const selTxt = sel!=null? (q.missingOptions? `${toLetter(sel)}` : `${toLetter(sel)}. ${q.options[sel]||''}`) : '(no answer)';
+    const corTxt = q.missingOptions? `${toLetter(q.answerIndex)}` : `${toLetter(q.answerIndex)}. ${q.options[q.answerIndex]||''}`;
+    const color = ok? '#22c55e' : '#ef4444';
+    return `<div style="border:1px solid #1f2937;border-radius:10px;padding:10px;margin:8px 0;background:#0c1220">
+      <div style="display:flex;justify-content:space-between;gap:8px">
+        <span class="pill-sm">${q.domain}</span>
+        <span class="pill-sm" style="border-color:${color};color:${color}">${ok? 'Correct' : 'Incorrect'}</span>
+      </div>
+      <div style="margin:8px 0 6px 0">${q.question}</div>
+      <div class="small"><strong>Your answer:</strong> ${selTxt}</div>
+      <div class="small"><strong>Correct answer:</strong> ${corTxt}</div>
+      ${q.explanation? `<div class="small muted" style="margin-top:6px">Explanation: ${q.explanation}</div>`:''}
+    </div>`;
+  }).join('');
+  els.resultList.innerHTML = rows;
+  // Save attempt to localStorage
+  try{
+    const key='kcna_prep_history';
+    const raw = localStorage.getItem(key);
+    const hist = raw? JSON.parse(raw) : [];
+    const attempt = {
+      ts: new Date().toISOString(),
+      mode: QUIZ.mode,
+      params: {
+        domain: (document.getElementById('domainFilter')||{}).value || 'ALL',
+        useWeights: !!(document.getElementById('useWeights')||{}).checked,
+        count: total
+      },
+      score: { correct, total, pct: scorePct },
+      elapsedSec,
+      items: QUIZ.list.map((q,i)=>({ id: q.id, domain: q.domain, question: q.question, answerIndex: q.answerIndex, selected: QUIZ.answers[i] ?? null, correct: (QUIZ.answers[i]===q.answerIndex) }))
+    };
+    hist.push(attempt);
+    localStorage.setItem(key, JSON.stringify(hist));
+  }catch(_){ /* ignore storage errors */ }
+  els.resultPanel.classList.remove('hidden');
+  els.questionPanel.classList.add('hidden');
+}
+
+// ====== Upload (JSON only) ======
+els.uploadBtn.addEventListener('click', ()=> els.fileInput.click());
+els.canonBtn.addEventListener('click', ()=> els.canonInput.click());
+els.canonInput.addEventListener('change', async (e)=>{
+  const files = Array.from(e.target.files||[]); if(files.length===0) return;
+  let added=0; for(const f of files){ try{ const txt=await f.text(); const json=JSON.parse(txt); added += addToCanon(json); }catch(_){ /* ignore */ } }
+  toast(`Reference loaded: ${added} mapping(s)`);
+  e.target.value='';
+});
+els.fileInput.addEventListener('change', async (e)=>{
+  const files = Array.from(e.target.files||[]); if(files.length===0) return;
+  setUploadProgress(0, files.length, 'Reading files…');
+  let imported = 0; let skipped=0; const errors=[]; const summaries=[];
+  for(let i=0;i<files.length;i++){
+    const f=files[i]; const ext=(f.name.split('.').pop()||'').toLowerCase(); if(ext!=='json'){ toast('Only JSON is supported here'); continue; }
+    try{
+      const txt = await f.text(); const json = JSON.parse(txt);
+      const norm = await normalizePrepJSON(json);
+      if(norm.length===0){ skipped++; summaries.push({name:f.name, imported:0, note:'0 valid items (missing options).'}); }
+      setDataset([...DATASET, ...norm]); imported += norm.length; summaries.push({name:f.name, imported:norm.length});
+    }catch(err){ console.error(err); errors.push(`${f.name}: ${err.message||'parse error'}`); summaries.push({name:f.name, imported:0, note:'Parse error'}); }
+    setUploadProgress(i+1, files.length, `Processed ${i+1}/${files.length}: ${f.name}`);
+  }
+  showUploadSummary({files:files.length, imported, skipped, errors, summaries});
+  e.target.value='';
+  resetUploadProgress();
+});
+
+if(els.dropZone){
+  const dz=els.dropZone;
+  ['dragenter','dragover'].forEach(evt=> dz.addEventListener(evt, e=>{ e.preventDefault(); dz.style.borderColor='#5b9cff'; }));
+  ['dragleave','drop'].forEach(evt=> dz.addEventListener(evt, e=>{ e.preventDefault(); dz.style.borderColor='#334155'; }));
+  dz.addEventListener('drop', async (e)=>{
+    const files = Array.from(e.dataTransfer.files||[]); if(files.length===0) return;
+    setUploadProgress(0, files.length, 'Reading files…');
+    let imported = 0; let skipped=0; const errors=[]; const summaries=[];
+    for(let i=0;i<files.length;i++){
+      const f=files[i]; const ext=(f.name.split('.').pop()||'').toLowerCase(); if(ext!=='json'){ toast('Only JSON is supported here'); continue; }
+      try{
+        const txt = await f.text(); const json = JSON.parse(txt);
+        const norm = await normalizePrepJSON(json);
+        if(norm.length===0){ skipped++; summaries.push({name:f.name, imported:0, note:'0 valid items (missing options).'}); }
+        setDataset([...DATASET, ...norm]); imported += norm.length; summaries.push({name:f.name, imported:norm.length});
+      }catch(err){ console.error(err); errors.push(`${f.name}: ${err.message||'parse error'}`); summaries.push({name:f.name, imported:0, note:'Parse error'}); }
+      setUploadProgress(i+1, files.length, `Processed ${i+1}/${files.length}: ${f.name}`);
+    }
+    showUploadSummary({files:files.length, imported, skipped, errors, summaries});
+    resetUploadProgress();
+  });
+}
+
+// ====== Events ======
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  if(DATASET.length===0){ toast('Upload kcna_prep_qna_clean.json first'); return; }
+  buildQuiz();
+});
+els.prevBtn.addEventListener('click', ()=>{ QUIZ.index = clamp(QUIZ.index-1,0,QUIZ.list.length-1); renderQuestion(); });
+els.nextBtn.addEventListener('click', ()=>{ QUIZ.index = clamp(QUIZ.index+1,0,QUIZ.list.length-1); renderQuestion(); });
+els.checkBtn.addEventListener('click', ()=>{ if(QUIZ.mode==='practice') checkCurrent(); else toast('Exam mode hides feedback.'); });
+els.submitBtn.addEventListener('click', submitExam);
+els.resetBtn.addEventListener('click', ()=>{ localStorage.removeItem('kcna_prep_dataset'); setDataset([]); toast('Reset: dataset cleared'); els.questionPanel.classList.add('hidden'); els.resultPanel.classList.add('hidden'); });
+
+</script>
+</body>
+</html>
